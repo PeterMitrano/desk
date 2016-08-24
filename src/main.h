@@ -14,8 +14,11 @@ enum class State {
   DOWN,
   STOP,
   SIT,
-  STAND
+  STAND,
+  HEIGHT,
+  INVALID
 } state;
+float current_height = 0.0;
 
 void connectWiFi();
 

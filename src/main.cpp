@@ -26,10 +26,24 @@ State determine_state(char *url, int url_len) {
   else if (strncmp(url, "/stop", url_len) == 0) {
     return State::STOP;
   }
-  else if (strncmp(url, "/stop", url_len) == 0) {
-    return State::STOP;
+  else if (strncmp(url, "/position/stand", url_len) == 0) {
+    return State::STAND;
   }
-  return State::STOP;
+  else if (strncmp(url, "/position/sit", url_len) == 0) {
+    return State::SIT;
+  }
+  else if (strncmp(url, "/height", 7) == 0) {
+    current_height = atoi(&url[8]);
+    return State::HEIGHT;
+  }
+  return State::INVALID;
+}
+
+void blink(int length){
+  digitalWrite(LED_PIN, 0);
+  delay(length);
+  digitalWrite(LED_PIN, 1);
+  delay(length);
 }
 
 void loop()
@@ -37,7 +51,28 @@ void loop()
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
-    return;
+    // just act based on our current state
+    switch(state) {
+      case State::UP:
+        digitalWrite(LED_PIN, 1);
+        break;
+      case State::DOWN:
+        digitalWrite(LED_PIN, 0);
+        break;
+      case State::INVALID: //fall through
+      case State::STOP:
+        blink(100);
+        break;
+      case State::SIT:
+        blink(500);
+        break;
+      case State::STAND:
+        blink(1000);
+        break;
+      case State::HEIGHT:
+        blink(current_height);
+        break;
+    }
   }
   else { // we've recieved something new, handle it.
     // Read the first line of the request
