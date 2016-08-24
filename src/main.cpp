@@ -4,17 +4,6 @@
 
 #include "main.h"
 
-//////////////////////
-// WiFi Definitions //
-//////////////////////
-const char WiFiSSID[] = "Fruit453";
-const char WiFiPSK[] = "RoryAndrewPeter";
-
-/////////////////////
-// Pin Definitions //
-/////////////////////
-const int LED_PIN = 5; // Thing's onboard, green LED
-
 WiFiServer server(80);
 
 void setup()
@@ -27,6 +16,22 @@ void setup()
   setupMDNS();
 }
 
+State determine_state(char *url, int url_len) {
+  if (strncmp(url, "/up", url_len) == 0) {
+    return State::UP;
+  }
+  else if (strncmp(url, "/down", url_len) == 0) {
+    return State::DOWN;
+  }
+  else if (strncmp(url, "/stop", url_len) == 0) {
+    return State::STOP;
+  }
+  else if (strncmp(url, "/stop", url_len) == 0) {
+    return State::STOP;
+  }
+  return State::STOP;
+}
+
 void loop()
 {
   // Check if a client has connected
@@ -34,33 +39,37 @@ void loop()
   if (!client) {
     return;
   }
+  else { // we've recieved something new, handle it.
+    // Read the first line of the request
+    char request_line[50];
+    String pretty_string = client.readStringUntil('\n');
+    client.flush();
+    pretty_string.toCharArray(request_line, 50);
+    char *save_ptr;
 
-  // Read the first line of the request
-  char request_line[50];
-  String pretty_string = client.readStringUntil('\n');
-  pretty_string.toCharArray(request_line, 50);
-  char *save_ptr;
+    char *method = strtok_r(request_line, " ", &save_ptr);
+    char *fullurl = strtok_r(NULL, " ", &save_ptr);
+    char *url = strtok_r(fullurl, "?", &save_ptr);
+    int url_len = sizeof(*url * sizeof(char));
+    char *params = strtok_r(NULL, "", &save_ptr);
+    Serial.println(url);
 
-  char *method = strtok_r(request_line, " ", &save_ptr);
-  char *fullurl = strtok_r(NULL, " ", &save_ptr);
-  char *url = strtok_r(fullurl, "?", &save_ptr);
-  char *params = strtok_r(NULL, "", &save_ptr);
-  Serial.println(pretty_string);
-  Serial.println(url);
-  Serial.println(params);
-  client.flush();
+    state = determine_state(url, url_len);
 
-  // do stuff...
-  String response = "HTTP/1.1 200 OK\r\n";
-  response += "Content-Type: text/html\r\n\r\n";
-  response += "Ok.";
+    client.flush();
 
-  // Send the response to the client
-  client.print(response);
-  delay(1);
+    // do stuff...
+    String response = "HTTP/1.1 200 OK\r\n";
+    response += "Content-Type: text/html\r\n\r\n";
+    response += "Ok.";
 
-  // The client will actually be disconnected
-  // when the function returns and 'client' object is detroyed
+    // Send the response to the client
+    client.print(response);
+    delay(1);
+
+    // The client will actually be disconnected
+    // when the function returns and 'client' object is detroyed
+  }
 }
 
 void connectWiFi()
