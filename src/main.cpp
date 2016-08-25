@@ -1,10 +1,12 @@
 #include <Arduino.h>
+#include <Servo.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 
 #include "main.h"
 
 WiFiServer server(80);
+Servo motor;
 
 void setup()
 {
@@ -54,22 +56,30 @@ void loop()
     // just act based on our current state
     switch(state) {
       case State::UP:
+        motor.write(180);
         digitalWrite(LED_PIN, 1);
         break;
       case State::DOWN:
+        motor.write(0);
         digitalWrite(LED_PIN, 0);
         break;
       case State::INVALID: //fall through
       case State::STOP:
+        motor.write(90);
         blink(100);
         break;
       case State::SIT:
+        motor.write(0);
         blink(500);
         break;
       case State::STAND:
+        motor.write(180);
         blink(1000);
         break;
       case State::HEIGHT:
+        int pos = analogRead(HEIGHT_POT_PIN);
+        int error = pos - current_height;
+        motor.write(90 + error * kP);
         blink(current_height);
         break;
     }
@@ -156,5 +166,6 @@ void initHardware()
 {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
+  motor.attach(MOTOR_PIN);
 }
 
