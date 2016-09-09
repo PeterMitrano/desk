@@ -8,6 +8,9 @@
 WiFiServer server(80);
 Servo motor;
 
+State global_state = State::STOP;
+State last_global_state = State::INVALID;
+
 void setup()
 {
   Serial.begin(9600);
@@ -16,6 +19,25 @@ void setup()
   connectWiFi();
   server.begin();
   setupMDNS();
+}
+
+String state_to_string(State state) {
+  switch(state) {
+    case State::UP:
+      return "Up";
+    case State::DOWN:
+      return "Down";
+    case State::STOP:
+      return "Stop";
+    case State::SIT:
+      return "Sitting Position";
+    case State::STAND:
+      return "Standing Position";
+    case State::HEIGHT:
+      return "Custom Height";
+    default:
+      return "invalid (interpreted as Stop)";
+  }
 }
 
 State determine_state(char *url, int url_len) {
@@ -41,48 +63,41 @@ State determine_state(char *url, int url_len) {
   return State::INVALID;
 }
 
-void blink(int length){
-  digitalWrite(LED_PIN, 0);
-  delay(length);
-  digitalWrite(LED_PIN, 1);
-  delay(length);
-}
-
 void loop()
 {
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
+
+    if (global_state != last_global_state) {
+      Serial.println(state_to_string(global_state));
+    }
+
     // just act based on our current state
-    switch(state) {
+    switch(global_state) {
       case State::UP:
         motor.write(180);
-        digitalWrite(LED_PIN, 1);
         break;
       case State::DOWN:
         motor.write(0);
-        digitalWrite(LED_PIN, 0);
         break;
       case State::INVALID: //fall through
       case State::STOP:
         motor.write(90);
-        blink(100);
         break;
       case State::SIT:
-        motor.write(0);
-        blink(500);
+        //motor.write(0);
         break;
       case State::STAND:
-        motor.write(180);
-        blink(1000);
+        //motor.write(180);
         break;
       case State::HEIGHT:
         int pos = analogRead(HEIGHT_POT_PIN);
         int error = pos - current_height;
-        motor.write(90 + error * kP);
-        blink(current_height);
+        //motor.write(90 + error * kP);
         break;
     }
+    last_global_state = global_state;
   }
   else { // we've recieved something new, handle it.
     // Read the first line of the request
@@ -97,16 +112,16 @@ void loop()
     char *url = strtok_r(fullurl, "?", &save_ptr);
     int url_len = sizeof(*url * sizeof(char));
     char *params = strtok_r(NULL, "", &save_ptr);
-    Serial.println(url);
+    //Serial.println(url);
 
-    state = determine_state(url, url_len);
+    global_state = determine_state(url, url_len);
 
     client.flush();
 
     // do stuff...
     String response = "HTTP/1.1 200 OK\r\n";
     response += "Content-Type: text/html\r\n\r\n";
-    response += "Ok.";
+    response += state_to_string(global_state);
 
     // Send the response to the client
     client.print(response);

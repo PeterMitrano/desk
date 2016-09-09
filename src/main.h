@@ -20,7 +20,7 @@ enum class State {
   STAND,
   HEIGHT,
   INVALID
-} state;
+};
 float current_height = 0.0;
 
 void connectWiFi();
@@ -29,5 +29,7 @@ void connectWiFi();
 void setupMDNS();
 
 void initHardware();
+
+String state_to_string(State state);
 
 State determine_state(char *url, int url_len);
