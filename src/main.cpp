@@ -10,6 +10,7 @@ Servo motor;
 
 State global_state = State::STOP;
 State last_global_state = State::INVALID;
+bool pressing_button = false;
 
 void setup()
 {
@@ -68,9 +69,23 @@ void loop()
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
+    // check buttons
+    int manual_up = !digitalRead(UP_PIN);
+    int manual_down = !digitalRead(DOWN_PIN);
 
-    if (global_state != last_global_state) {
-      Serial.println(state_to_string(global_state));
+    if (manual_up) {
+      global_state = State::UP;
+      pressing_button = true;
+    }
+    else if (manual_down) {
+      global_state = State::DOWN;
+      pressing_button = true;
+    }
+    else {
+      if (pressing_button) {
+        pressing_button = false;
+        global_state = State::STOP;
+      }
     }
 
     // just act based on our current state
@@ -180,6 +195,8 @@ void setupMDNS()
 void initHardware()
 {
   pinMode(LED_PIN, OUTPUT);
+  pinMode(UP_PIN, INPUT_PULLUP);
+  pinMode(DOWN_PIN, INPUT_PULLUP);
   digitalWrite(LED_PIN, HIGH);
   motor.attach(MOTOR_PIN);
 }
