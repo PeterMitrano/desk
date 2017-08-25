@@ -1,5 +1,3 @@
-#/usr/bin/python3
-
 import argparse
 import requests
 import time
@@ -37,7 +35,3 @@ def move(base_url, endpoint, dt):
 
     url = base_url + "/stop"
     r = requests.get(url);
-
-
-if __name__ == "__main__":
-    main()

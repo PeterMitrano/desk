@@ -9,4 +9,5 @@ setup(name='desk_cli',
       author_email='mitranopeter@gmail.com',
       url='https://github.com/petermitrano/desk/desk_cli',
       packages=['desk_cli'],
+      scripts = ['desk_cli/desk'],
      )
