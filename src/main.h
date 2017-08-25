@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-const char WiFiSSID[] = "Fruit453";
+const char WiFiSSID[] = "ForbiddenFruit";
 const char WiFiPSK[] = "RoryAndrewPeter";
 
 const float SIT = 1.0;
