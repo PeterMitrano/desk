@@ -7,6 +7,6 @@ setup(name='desk_cli',
       description='desk cli',
       author='Peter Mitrano',
       author_email='mitranopeter@gmail.com',
-      url='https://github.com/petermitrano/desk/desk-cli',
-      packages=['desk-cli'],
+      url='https://github.com/petermitrano/desk/desk_cli',
+      packages=['desk_cli'],
      )

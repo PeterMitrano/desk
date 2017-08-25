@@ -1,0 +1,7 @@
+__init__.py
+desk.py
+setup.py
+desk_cli.egg-info/PKG-INFO
+desk_cli.egg-info/SOURCES.txt
+desk_cli.egg-info/dependency_links.txt
+desk_cli.egg-info/top_level.txt
