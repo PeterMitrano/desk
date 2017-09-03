@@ -1,6 +1,9 @@
 import argparse
 import requests
 import time
+import signal
+import sys
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -13,16 +16,23 @@ def main():
 
     args = parser.parse_args()
 
-
     if args.stop:
         endpoint = "/stop"
-        print("stopping ...")
+        print("Stopping ...")
     elif args.up:
         endpoint = "/up"
         print("Going up...")
     elif args.down:
         endpoint = "/down"
         print("Going down...")
+
+    def signal_handler(signal, frame):
+        print(flush=True)
+        print('Stopping...')
+        move(args.url, "/stop", 0)
+        exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     move(args.url, endpoint, args.time)
 
