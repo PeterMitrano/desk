@@ -182,7 +182,7 @@ void connectWiFi()
 
 void setupMDNS()
 {
-  if (!MDNS.begin("thing"))
+  if (!MDNS.begin("desk"))
   {
     Serial.println("Error setting up MDNS responder!");
     while(1) {

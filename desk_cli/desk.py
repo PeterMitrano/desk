@@ -7,7 +7,7 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--url", default="http://192.168.0.145", help="URL for make request to")
+    parser.add_argument("--url", default="http://desk.local", help="URL for make request to")
     parser.add_argument("-t", "--time", type=float, default=0.5, help="time to run command for")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-s", "--stop", action="store_true", help="stop desk")
